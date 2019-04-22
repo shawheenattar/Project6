@@ -23,6 +23,9 @@ public class Theater {
 	List<Ticket> booked = new ArrayList<Ticket>();
 	
 	String showName;
+	int totalClients;
+	
+	boolean soldOutPosted;
 
     /**
      * the delay time you will use when print tickets
@@ -169,16 +172,21 @@ public class Theater {
     	}
     	    	
     	this.showName = show;
+    	
+    	this.soldOutPosted = false;
     }
     
-    public Ticket bookTicket(String boxOfficeId, int client) {
+    public Ticket bookTicket(String boxOfficeId) {
     	
     	Seat best = bestAvailableSeat();
-    	if (best == null) return null;
     	
-    	Ticket t = printTicket(boxOfficeId, best, client);
-    	
-    	return t;
+    	if (best != null) {
+    		totalClients++;
+        	Ticket t = printTicket(boxOfficeId, best, totalClients);
+        	return t;
+    	}
+        		
+    	return null;
     }
 
     /**
@@ -188,9 +196,7 @@ public class Theater {
      */
     public Seat bestAvailableSeat() {
     	
-//    	System.out.println(seats);
-//    	System.out.println(booked);
-
+    	
     	for (Seat s: seats) {
     		
     		if (this.takenSeats.size() == 0) return s;
@@ -223,11 +229,6 @@ public class Theater {
     	takenSeats.add(seat);
     	booked.add(newTicket);
     	
-    	try {
-			Thread.sleep(getPrintDelay());
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-		}
     	System.out.println(newTicket);
     	
         return newTicket;

@@ -58,7 +58,10 @@ public class BookingClient {
     		
     		BookingLoop booker = new BookingLoop(key, value, movieTheater);
     		threads.add(booker);
-    		booker.start();
+    	}
+    	
+    	for (Thread t: threads) {
+    		t.start();
     	}
     	
         return threads;
@@ -77,13 +80,6 @@ public class BookingClient {
     	Theater t = new Theater(3, 5, "Ouija");
     	BookingClient book = new BookingClient(office, t);
     	
-//    	Theater.Seat best = t.bestAvailableSeat();
-//    	System.out.println(best);
-//    	
-//    	t.printTicket("box1", best, 1);
-//    	Theater.Seat best2 = t.bestAvailableSeat();
-//    	System.out.println(best2);
-    	
     	book.simulate();
     	
     }
@@ -92,32 +88,37 @@ public class BookingClient {
 class BookingLoop extends Thread {
 	
 	String officeName;
-	int clientNum;
+	int totalClients;
 	Theater theater;
 	
 	public BookingLoop(String s, int i, Theater t) {
 		this.officeName = s;
-		this.clientNum = i;
+		this.totalClients = i;
 		this.theater = t;
 	}
 	
 	public void run() {
-//		System.out.println(this.officeName + " " + this.clientNum);
-//		System.out.println(Thread.currentThread());
+		//System.out.println(this.officeName + " " + this.totalClients);
 		
-		for (int i = 0; i < clientNum; i++) {
-			Theater.Seat best = theater.bestAvailableSeat();;
-			synchronized(best) {
-	    		theater.printTicket(officeName, best, i);
+		for (int i = 0; i < totalClients; i++) {
+			
+	 		Theater.Ticket ticket;
+    		synchronized(theater) {
+             	ticket = theater.bookTicket(officeName);
+             	if (ticket == null && !theater.soldOutPosted) {
+        			System.out.println("Sorry, we are sold out!");
+        			theater.soldOutPosted = true;
+        		}
+    		}
+    		
+    		
+          	try {
+				Thread.sleep(theater.getPrintDelay());
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
 			}
 
-    		
-//    		synchronized(theater) {
-//        		Theater.Ticket ticket = theater.bookTicket(officeName, i);
-//			}
-			
+        	
 		}
-
 	}
-
 }
